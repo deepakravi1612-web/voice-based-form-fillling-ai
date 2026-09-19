@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VoiceForm - Accessible voice-based form filling portal designed for Indian English with Tamil and Hindi architecture.">
+  <title>VoiceForm | Voice-Based Citizen Form Filling Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Top Accessibility & Government Banner -->
+  <aside class="gov-topbar" aria-label="National Portal Accessibility Bar">
+    <div class="container topbar-content">
+      <div class="gov-brand">
+        <span class="chakra-icon" aria-hidden="true">☸</span>
+        <span>Government of India Digital Services Prototype • National e-Governance Voice Initiative</span>
+      </div>
+      <div class="a11y-controls" role="toolbar" aria-label="Accessibility settings">
+        <div class="text-resizer">
+          <span class="a11y-label">Text:</span>
+          <button type="button" id="fontSizeSmall" class="btn-a11y" title="Small Text">A-</button>
+          <button type="button" id="fontSizeNormal" class="btn-a11y active" title="Standard Text">A</button>
+          <button type="button" id="fontSizeLarge" class="btn-a11y" title="Large Text">A+</button>
+        </div>
+        <button type="button" id="toggleHighContrast" class="btn-a11y" title="Toggle High Contrast Mode" aria-pressed="false">
+          <span class="contrast-icon" aria-hidden="true">◑</span> High Contrast
+        </button>
+        <button type="button" id="toggleSpeechAudio" class="btn-a11y active" title="Toggle Assistant Voice Readout" aria-pressed="true">
+          <span class="audio-icon" aria-hidden="true">🔊</span> Voice Guidance
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="container header-container">
+      <div class="brand-block">
+        <div class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-svg">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+            <line x1="8" y1="22" x2="16" y2="22"></line>
+          </svg>
+        </div>
+        <div>
+          <h1 class="portal-title">VoiceForm <span class="badge-lang" id="currentLangTag">en-IN</span></h1>
+          <p class="portal-subtitle">Fill forms using your voice. <span class="portal-subtitle-indic">(बोलकर फॉर्म भरें • குரல் மூலம் படிவம் நிரப்பவும்)</span></p>
+        </div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="lang-selector-card">
+        <label for="languageSelect" class="lang-label">
+          <span class="globe-icon" aria-hidden="true">🌐</span> Spoken Language:
+        </label>
+        <select id="languageSelect" class="lang-select" aria-label="Select form speaking language">
+          <option value="en-IN" selected>English (India) - en-IN</option>
+          <option value="ta-IN">தமிழ் (Tamil) - ta-IN</option>
+          <option value="hi-IN">हिन्दी (Hindi) - hi-IN</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Browser Speech Support Alert Banner (Conditional) -->
+  <div id="unsupportedBanner" class="alert-banner alert-warning hidden" role="alert">
+    <div class="container alert-flex">
+      <span class="alert-icon" aria-hidden="true">⚠️</span>
+      <div class="alert-text">
+        <strong>Speech Recognition Notice:</strong> Voice input is not natively supported in this browser engine. You can continue using the form manually, or use the <strong>Voice Simulation Bar</strong> below to test voice commands.
+      </div>
+      <button type="button" class="btn-close-alert" id="dismissAlertBtn" aria-label="Dismiss alert">✕</button>
+    </div>
+  </div>
+
+  <!-- Main Portal Layout -->
+  <main class="container main-content" id="mainContent">
+
+    <!-- TOP SECTION: Voice Assistant Centerpiece Card -->
+    <section class="assistant-panel" aria-label="Voice Assistant Interaction Area">
+      <div class="assistant-card" id="assistantCard">
+        
+        <!-- Status & Mode Badge Row -->
+        <div class="assistant-top-bar">
+          <div class="status-indicator-badge" id="statusBadge" role="status" aria-live="polite">
+            <span class="status-dot" id="statusDot"></span>
+            <span class="status-text" id="statusText">Ready</span>
+          </div>
+
+          <div class="step-badge" id="stepCounterBadge">
+            <span class="step-num">Step 1 of 8</span>
+            <span class="active-field-tag" id="activeFieldTag">Full Name</span>
+          </div>
+        </div>
+
+        <!-- Assistant Voice Avatar & Wave Animation -->
+        <div class="assistant-visualizer-wrap">
+          <div class="mic-orb" id="micOrb" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="orb-mic-svg">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+              <line x1="8" y1="22" x2="16" y2="22"></line>
+            </svg>
+            <div class="pulse-ring ring-1"></div>
+            <div class="pulse-ring ring-2"></div>
+          </div>
+
+          <!-- Soundwave Bars for Active Listening -->
+          <div class="sound-bars" id="soundBars" aria-hidden="true">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </div>
+        </div>
+
+        <!-- Assistant Active Prompt Question -->
+        <div class="assistant-prompt-box">
+          <h2 class="assistant-question" id="assistantQuestion" aria-live="assertive">
+            "What is your full name?"
+          </h2>
+          <p class="assistant-subhint" id="assistantSubhint">
+            Press <strong>Start Speaking</strong> and speak clearly. Example: <em>"My name is Abinaya"</em>
+          </p>
+        </div>
+
+        <!-- Live Transcript & Confidence Area -->
+        <div class="transcript-card" id="transcriptCard">
+          <div class="transcript-header">
+            <span class="transcript-label">
+              <span class="rec-dot" aria-hidden="true"></span> Speech Transcript:
+            </span>
+            <span class="confidence-badge" id="confidenceBadge" title="Speech recognition statistical confidence">
+              Confidence: --%
+            </span>
+          </div>
+          <div class="transcript-body" id="transcriptText" aria-live="polite">
+            <span class="placeholder-text">Click "Start Speaking" or use voice simulator to see spoken transcript...</span>
+          </div>
+          <div class="confidence-disclaimer" id="confidenceDisclaimer">
+            *Confidence score indicates acoustic matching and does not guarantee factual correctness.
+          </div>
+        </div>
+
+        <!-- Inline Field Confirmation Box (Appears when confirming critical input) -->
+        <div class="confirmation-box hidden" id="confirmationBox" role="region" aria-label="Field Confirmation Request">
+          <div class="confirmation-content">
+            <span class="confirm-icon" aria-hidden="true">❓</span>
+            <div>
+              <p class="confirm-msg" id="confirmMsg">You said: <strong>Abinaya</strong>. Is this correct?</p>
+              <span class="confirm-sub">You can say <strong>"Yes"</strong> or <strong>"No"</strong>, or click below.</span>
+            </div>
+          </div>
+          <div class="confirm-actions">
+            <button type="button" class="btn btn-confirm-yes" id="btnConfirmYes">
+              ✓ Yes, Correct
+            </button>
+            <button type="button" class="btn btn-confirm-no" id="btnConfirmNo">
+              ✕ No, Change It
+            </button>
+          </div>
+        </div>
+
+        <!-- Assistant Primary Action Buttons -->
+        <div class="assistant-controls">
+          <button type="button" class="btn btn-mic-primary" id="btnToggleSpeak" aria-label="Start Voice Input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon" aria-hidden="true">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+              <line x1="8" y1="22" x2="16" y2="22"></line>
+            </svg>
+            <span id="btnSpeakText">Start Speaking</span>
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="btnRepeatPrompt" title="Hear the assistant question again">
+            <span aria-hidden="true">↺</span> Repeat Question
+          </button>
+
+          <button type="button" class="btn btn-outline" id="btnTypeInstead" title="Switch focus directly to active form field">
+            <span aria-hidden="true">⌨</span> Type Instead
+          </button>
+        </div>
+
+        <!-- Quick Spoken Examples Ticker -->
+        <div class="hints-drawer">
+          <span class="hints-title">💡 Helpful Voice Commands:</span>
+          <div class="hints-chips" id="hintsChips">
+            <span class="hint-chip">"My name is Abinaya"</span>
+            <span class="hint-chip">"My email is abinaya at gmail dot com"</span>
+            <span class="hint-chip">"Next"</span>
+            <span class="hint-chip">"Clear this field"</span>
+            <span class="hint-chip">"Review my form"</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PROGRESS STEP TRACKER -->
+    <section class="progress-section" aria-label="Form Progress Tracker">
+      <div class="progress-header">
+        <span class="progress-title">Form Completion Progress</span>
+        <span class="progress-percent" id="progressPercent">12%</span>
+      </div>
+      <div class="progress-bar-track" role="progressbar" id="progressBar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 12.5%;"></div>
+      </div>
+      <ol class="step-stepper" id="stepStepper" aria-label="Step navigation list">
+        <li class="step-item active" data-step="0"><span class="step-bullet">1</span><span class="step-name">Name</span></li>
+        <li class="step-item" data-step="1"><span class="step-bullet">2</span><span class="step-name">Email</span></li>
+        <li class="step-item" data-step="2"><span class="step-bullet">3</span><span class="step-name">Phone</span></li>
+        <li class="step-item" data-step="3"><span class="step-bullet">4</span><span class="step-name">DOB</span></li>
+        <li class="step-item" data-step="4"><span class="step-bullet">5</span><span class="step-name">Gender</span></li>
+        <li class="step-item" data-step="5"><span class="step-bullet">6</span><span class="step-name">Country</span></li>
+        <li class="step-item" data-step="6"><span class="step-bullet">7</span><span class="step-name">Skills</span></li>
+        <li class="step-item" data-step="7"><span class="step-bullet">8</span><span class="step-name">Address</span></li>
+      </ol>
+    </section>
+
+    <!-- FORM SECTION: Realistic Accessible Form -->
+    <section class="form-section">
+      <form id="voiceApplicationForm" class="voice-form-card" novalidate>
+        
+        <div class="form-card-header">
+          <div class="form-header-text">
+            <h3 class="form-title">Citizen Application & Registration Form</h3>
+            <p class="form-desc">Speak naturally to fill out each section, or edit any field directly using your keyboard or touch screen.</p>
+          </div>
+          <div class="mode-tag">Dual Input Mode (Voice + Manual)</div>
+        </div>
+
+        <div class="form-fields-grid">
+
+          <!-- 1. FULL NAME -->
+          <div class="form-field-card active-field" id="card-fullName" data-field-index="0">
+            <div class="field-top-row">
+              <label for="fullName" class="field-label">
+                <span class="field-index-badge">1</span> Full Name <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-field-speak" data-target="0" title="Speak full name">
+                🎤 Speak
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="fullName" 
+                name="fullName" 
+                class="form-control" 
+                placeholder="e.g., Abinaya Sundar" 
+                autocomplete="name" 
+                required
+                aria-describedby="fullNameHelp"
+              >
+            </div>
+            <div id="fullNameHelp" class="field-help">Say: <em>"My name is Abinaya"</em> or <em>"Fill my name as Abinaya"</em></div>
+            <div class="field-error-msg" id="fullNameError">Please provide your full name.</div>
+          </div>
+
+          <!-- 2. EMAIL -->
+          <div class="form-field-card" id="card-email" data-field-index="1">
+            <div class="field-top-row">
+              <label for="email" class="field-label">
+                <span class="field-index-badge">2</span> Email Address <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-field-speak" data-target="1" title="Speak email address">
+                🎤 Speak
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-control" 
+                placeholder="e.g., abinaya@gmail.com" 
+                autocomplete="email" 
+                required
+                aria-describedby="emailHelp"
+              >
+            </div>
+            <div id="emailHelp" class="field-help">Say: <em>"My email is abinaya at gmail dot com"</em> (converts 'at' to @ and 'dot' to .)</div>
+            <div class="field-error-msg" id="emailError">Please provide a valid email address.</div>
+          </div>
+
+          <!-- 3. PHONE NUMBER -->
+          <div class="form-field-card" id="card-phone" data-field-index="2">
+            <div class="field-top-row">
+              <label for="phone" class="field-label">
+                <span class="field-index-badge">3</span> Mobile Phone Number <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-field-speak" data-target="2" title="Speak phone number">
+                🎤 Speak
+              </button>
+            </div>
+            <div class="input-wrapper phone-input-wrapper">
+              <span class="phone-prefix">+91</span>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                class="form-control phone-input" 
+                placeholder="10-digit mobile number" 
+                maxlength="10" 
+                pattern="[6-9][0-9]{9}" 
+                autocomplete="tel" 
+                required
+                aria-describedby="phoneHelp"
+              >
+            </div>
+            <div id="phoneHelp" class="field-help">Say: <em>"My phone number is 9876543210"</em> or speak digit-by-digit</div>
+            <div class="field-error-msg" id="phoneError">Please enter a valid 10-digit Indian mobile number.</div>
+          </div>
+
+          <!-- 4. DATE OF BIRTH -->
+          <div class="form-field-card" id="card-dob" data-field-index="3">
+            <div class="field-top-row">
+              <label for="dob" class="field-label">
+                <span class="field-index-badge">4</span> Date of Birth <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-field-speak" data-target="3" title="Speak date of birth">
+                🎤 Speak
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <input 
+                type="date" 
+                id="dob" 
+                name="dob" 
+                class="form-control" 
+                required
+                aria-describedby="dobHelp"
+              >
+            </div>
+            <div id="dobHelp" class="field-help">Say: <em>"June 15 2006"</em> or <em>"15th August 1998"</em></div>
+            <div class="field-error-msg" id="dobError">Please specify a valid date of birth.</div>
+          </div>
+
+          <!-- 5. GENDER (RADIO BUTTONS) -->
+          <div class="form-field-card" id="card-gender" data-field-index="4">
+            <div class="field-top-row">
+              <span class="field-label">
+                <span class="field-index-badge">5</span> Gender <span class="required-star">*</span>
+              </span>
+              <button type="button" class="btn-field-speak" data-target="4" title="Speak gender">
+                🎤 Speak
+              </button>
+            </div>
+            <fieldset class="radio-fieldset" role="radiogroup" aria-required="true" aria-describedby="genderHelp">
+              <legend class="sr-only">Select Gender</legend>
+              <label class="radio-card" for="genderMale">
+                <input type="radio" id="genderMale" name="gender" value="Male" required>
+                <span class="radio-custom"></span>
+                <span class="radio-label-text">Male</span>
+              </label>
+              <label class="radio-card" for="genderFemale">
+                <input type="radio" id="genderFemale" name="gender" value="Female">
+                <span class="radio-custom"></span>
+                <span class="radio-label-text">Female</span>
+              </label>
+              <label class="radio-card" for="genderOther">
+                <input type="radio" id="genderOther" name="gender" value="Other">
+                <span class="radio-custom"></span>
+                <span class="radio-label-text">Other</span>
+              </label>
+            </fieldset>
+            <div id="genderHelp" class="field-help">Say: <em>"My gender is female"</em> or simply <em>"Female"</em> / <em>"Male"</em></div>
+            <div class="field-error-msg" id="genderError">Please select a gender option.</div>
+          </div>
+
+          <!-- 6. COUNTRY (DROPDOWN) -->
+          <div class="form-field-card" id="card-country" data-field-index="5">
+            <div class="field-top-row">
+              <label for="country" class="field-label">
+                <span class="field-index-badge">6</span> Country <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-field-speak" data-target="5" title="Speak country selection">
+                🎤 Speak
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <select id="country" name="country" class="form-control" required aria-describedby="countryHelp">
+                <option value="" disabled selected>-- Select a Country --</option>
+                <option value="India">India</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Canada">Canada</option>
+                <option value="Australia">Australia</option>
+              </select>
+            </div>
+            <div id="countryHelp" class="field-help">Say: <em>"Select India"</em> or <em>"Country United States"</em></div>
+            <div class="field-error-msg" id="countryError">Please choose a supported country from the dropdown.</div>
+          </div>
+
+          <!-- 7. SKILLS (CHECKBOXES) -->
+          <div class="form-field-card" id="card-skills" data-field-index="6">
+            <div class="field-top-row">
+              <span class="field-label">
+                <span class="field-index-badge">7</span> Technical Skills (Multiple Options)
+              </span>
+              <button type="button" class="btn-field-speak" data-target="6" title="Speak skill selections">
+                🎤 Speak
+              </button>
+            </div>
+            <fieldset class="checkbox-grid" aria-describedby="skillsHelp">
+              <legend class="sr-only">Technical Skills Selection</legend>
+              
+              <label class="checkbox-card" for="skill-java">
+                <input type="checkbox" id="skill-java" name="skills" value="Java">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">Java</span>
+              </label>
+
+              <label class="checkbox-card" for="skill-cpp">
+                <input type="checkbox" id="skill-cpp" name="skills" value="C++">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">C++</span>
+              </label>
+
+              <label class="checkbox-card" for="skill-cybersecurity">
+                <input type="checkbox" id="skill-cybersecurity" name="skills" value="Cybersecurity">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">Cybersecurity</span>
+              </label>
+
+              <label class="checkbox-card" for="skill-webdev">
+                <input type="checkbox" id="skill-webdev" name="skills" value="Web Development">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">Web Development</span>
+              </label>
+
+              <label class="checkbox-card" for="skill-database">
+                <input type="checkbox" id="skill-database" name="skills" value="Database">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-label-text">Database</span>
+              </label>
+            </fieldset>
+            <div id="skillsHelp" class="field-help">Say: <em>"Select Java and Cybersecurity"</em> or <em>"Unselect Java"</em></div>
+          </div>
+
+          <!-- 8. ADDRESS (TEXTAREA) -->
+          <div class="form-field-card" id="card-address" data-field-index="7">
+            <div class="field-top-row">
+              <label for="address" class="field-label">
+                <span class="field-index-badge">8</span> Residential Address <span class="required-star">*</span>
+              </label>
+              <button type="button" class="btn-field-speak" data-target="7" title="Speak residential address">
+                🎤 Speak
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <textarea 
+                id="address" 
+                name="address" 
+                class="form-control textarea-control" 
+                rows="3" 
+                placeholder="House / Flat No., Street, City, State, PIN Code" 
+                required
+                aria-describedby="addressHelp"
+              ></textarea>
+            </div>
+            <div id="addressHelp" class="field-help">Say: <em>"My address is 42 Gandhi Road Chennai Tamil Nadu"</em></div>
+            <div class="field-error-msg" id="addressError">Please provide your complete residential address.</div>
+          </div>
+
+          <!-- DOCUMENT UPLOAD (OPTIONAL / SPECIAL BROWSER HANDLING) -->
+          <div class="form-field-card document-card" id="card-document">
+            <div class="field-top-row">
+              <label for="documentUpload" class="field-label">
+                <span class="doc-icon" aria-hidden="true">📎</span> Supporting Document (Optional)
+              </label>
+              <button type="button" class="btn-field-speak" id="btnSpeakDoc" title="Trigger file upload with voice">
+                🎤 Say "Upload my document"
+              </button>
+            </div>
+            <div class="file-upload-box">
+              <input type="file" id="documentUpload" name="documentUpload" class="file-input" accept=".pdf,.jpg,.jpeg,.png">
+              <div class="file-upload-meta">
+                <span class="file-selected-name" id="fileSelectedName">No document attached yet</span>
+                <span class="file-note">Accepted: PDF, JPG, PNG (Max 5MB)</span>
+              </div>
+            </div>
+            <div class="field-security-note">
+              <span class="shield-badge">🔒 Browser Security Notice:</span> Saying <strong>"Upload my document"</strong> safely opens the browser's system file picker dialog. Browser security policies require the physical file selection to be confirmed manually.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FORM ACTION BUTTON BAR -->
+        <div class="form-bottom-actions">
+          <div class="action-group-left">
+            <button type="button" class="btn btn-nav" id="btnPrevField">
+              ← Previous Field
+            </button>
+            <button type="button" class="btn btn-nav" id="btnNextField">
+              Next Field →
+            </button>
+          </div>
+
+          <div class="action-group-right">
+            <button type="button" class="btn btn-clear-danger" id="btnClearCurrentField" title="Erase contents of current active field">
+              🗑 Clear This Field
+            </button>
+            <button type="button" class="btn btn-review-primary" id="btnOpenReview">
+              📋 Review Form
+            </button>
+            <button type="submit" class="btn btn-submit-final" id="btnFormSubmit">
+              🚀 Submit Form
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- PRIVACY & SECURITY SECTION -->
+    <section class="privacy-section" aria-label="Privacy and Data Security Guarantee">
+      <div class="privacy-card">
+        <div class="privacy-header">
+          <span class="privacy-shield-icon" aria-hidden="true">🛡️</span>
+          <div>
+            <h4 class="privacy-heading">Citizen Privacy & Security Commitment</h4>
+            <p class="privacy-sub">Your voice data stays strictly under your control.</p>
+          </div>
+        </div>
+        <ul class="privacy-points">
+          <li><strong>No Server Audio Storage:</strong> Voice recognition runs via your browser's standard Web Speech interface. Raw audio stream is never recorded, saved, or shared.</li>
+          <li><strong>Local Parsing:</strong> Spoken conversions (email symbols, phone digits, dates) are interpreted strictly on your device using client-side JavaScript.</li>
+          <li><strong>Zero Secret Keys Exposed:</strong> Prototype requires no paid external credentials or third-party tracking scripts.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- VOICE SIMULATOR & TESTING DRAWER (FOR HEADLESS/OFFLINE/MIC-DENIED TESTING) -->
+    <section class="simulation-section" aria-label="Automated Voice Command Simulator">
+      <div class="simulation-card">
+        <div class="simulation-header">
+          <div class="sim-title-group">
+            <span class="sim-tag">Developer & Testing Tool</span>
+            <h4 class="sim-title">Voice Simulator & Scenario Runner</h4>
+          </div>
+          <span class="sim-desc">Test all 8 required voice scenarios instantly without requiring an active microphone:</span>
+        </div>
+        
+        <div class="sim-scenarios-grid">
+          <button type="button" class="btn-sim" data-phrase="My name is Abinaya" title="Scenario 1: Set Full Name">
+            <span class="sim-badge">Test 1</span> "My name is Abinaya"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="My email is abinaya at gmail dot com" title="Scenario 2: Set Email with at and dot">
+            <span class="sim-badge">Test 2</span> "My email is abinaya at gmail dot com"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Select India" title="Scenario 3: Select dropdown Country">
+            <span class="sim-badge">Test 3</span> "Select India"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Female" title="Scenario 4: Select Gender radio">
+            <span class="sim-badge">Test 4</span> "Female"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Select Java and cybersecurity" title="Scenario 5: Multi-checkbox selection">
+            <span class="sim-badge">Test 5</span> "Select Java and cybersecurity"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Unselect Java" title="Scenario 5b: Unselect checkbox">
+            <span class="sim-badge">Test 5b</span> "Unselect Java"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Next" title="Scenario 6: Advance field">
+            <span class="sim-badge">Test 6</span> "Next"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Clear this field" title="Scenario 7: Clear field">
+            <span class="sim-badge">Test 7</span> "Clear this field"
+          </button>
+          <button type="button" class="btn-sim sim-error-trigger" id="btnSimulateMicDenied" title="Scenario 8: Simulate mic denied">
+            <span class="sim-badge">Test 8</span> 🚫 Simulate Mic Denied
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Select France" title="Dropdown rejection test">
+            <span class="sim-badge">Reject</span> "Select France" (Not in list)
+          </button>
+          <button type="button" class="btn-sim" data-phrase="My phone number is 9876543210" title="Phone input test">
+            <span class="sim-badge">Phone</span> "My phone number is 9876543210"
+          </button>
+          <button type="button" class="btn-sim" data-phrase="Review my form" title="Review form test">
+            <span class="sim-badge">Review</span> "Review my form"
+          </button>
+        </div>
+
+        <!-- Custom Command Testing Input -->
+        <div class="custom-sim-row">
+          <label for="customSimInput" class="custom-sim-label">Type any custom spoken phrase to test parser:</label>
+          <div class="custom-sim-input-group">
+            <input type="text" id="customSimInput" class="custom-sim-input" placeholder="e.g. 'nine eight seven six five four three two one zero' or 'June 15 2006'">
+            <button type="button" id="btnRunCustomSim" class="btn btn-sim-execute">Run Voice Command</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- REVIEW FORM MODAL DIALOG -->
+  <div class="modal-backdrop hidden" id="reviewModal" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle">
+    <div class="modal-card review-modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="modal-tag">Verification Stage</span>
+          <h3 class="modal-title" id="reviewModalTitle">Review Your Application Information</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="btnCloseReviewModal" aria-label="Close review dialog">✕</button>
+      </div>
+      
+      <div class="modal-body review-modal-body">
+        <p class="review-intro">Please check that all your information has been accurately captured before final submission.</p>
+        
+        <table class="review-table">
+          <caption class="sr-only">Entered Application Data Summary</caption>
+          <thead>
+            <tr>
+              <th scope="col" style="width: 28%;">Field Name</th>
+              <th scope="col">Captured Information</th>
+              <th scope="col" style="width: 15%; text-align: center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="reviewTableBody">
+            <!-- Populated via script.js -->
+          </tbody>
+        </table>
+
+        <div class="voice-submit-prompt-box">
+          <p>🎙️ You can also say: <strong>"Submit form"</strong> to submit, or <strong>"Go to name"</strong> to edit.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="btnReviewBack">
+          ← Return to Edit
+        </button>
+        <button type="button" class="btn btn-submit-final" id="btnConfirmFinalSubmit">
+          ✓ Confirm & Submit Application
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMISSION SUCCESS RECEIPT MODAL -->
+  <div class="modal-backdrop hidden" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successModalTitle">
+    <div class="modal-card success-modal-card">
+      <div class="success-icon-wrap" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="success-svg">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3 class="modal-title" id="successModalTitle">Application Successfully Submitted!</h3>
+      <p class="success-subtitle">Your form has been processed and safely registered in the portal.</p>
+      
+      <div class="receipt-box">
+        <div class="receipt-row">
+          <span class="receipt-label">Acknowledgement Number:</span>
+          <strong class="receipt-code" id="receiptCode">IND-VF-2026-98124</strong>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Applicant Name:</span>
+          <span id="receiptApplicantName">Abinaya Sundar</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Contact Mobile:</span>
+          <span id="receiptApplicantPhone">+91 9876543210</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Submission Timestamp:</span>
+          <span id="receiptTimestamp">--</span>
+        </div>
+      </div>
+
+      <div class="modal-footer success-modal-footer">
+        <button type="button" class="btn btn-outline" id="btnPrintReceipt">
+          🖨️ Print / Save Receipt
+        </button>
+        <button type="button" class="btn btn-primary" id="btnResetAllForm">
+          + Start New Form
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARIA Screen Reader Live Status Announcer -->
+  <div id="screenReaderAnnouncer" class="sr-only" aria-live="assertive" role="alert"></div>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
